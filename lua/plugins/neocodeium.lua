@@ -14,22 +14,37 @@ return {
                 end,
             })
 
+            local function feed_key(key)
+                vim.api.nvim_feedkeys(
+                    vim.api.nvim_replace_termcodes(key, true, false, true),
+                    "n",
+                    false
+                )
+            end
+
+            -- Accept AI suggestion, or pass Ctrl-Y through normally.
             vim.keymap.set("i", "<C-y>", function()
                 if neocodeium.visible() and not blink.is_visible() then
                     neocodeium.accept()
                 else
-                    return "<C-y>"
+                    feed_key("<C-y>")
                 end
-            end, { expr = true, desc = "Accept AI suggestion" })
+            end, {
+                desc = "Accept AI suggestion",
+            })
 
+            -- Reject AI suggestion, or pass Ctrl-N through normally.
             vim.keymap.set("i", "<C-n>", function()
                 if neocodeium.visible() and not blink.is_visible() then
                     neocodeium.clear()
                 else
-                    return "<C-n>"
+                    feed_key("<C-n>")
                 end
-            end, { expr = true, desc = "Reject AI suggestion" })
+            end, {
+                desc = "Reject AI suggestion",
+            })
 
+            -- Clear AI suggestions when Blink's completion menu opens.
             vim.api.nvim_create_autocmd("User", {
                 pattern = "BlinkCmpMenuOpen",
                 callback = function()
